@@ -1,0 +1,337 @@
+import os
+import signal
+import psutil
+from multiprocessing import Process, Queue
+from collections import Counter
+import sys
+import logging
+import multiprocessing
+import ctypes
+import time
+import random
+import threading
+import fcntl
+import errno
+from enum import Enum
+from queue import Queue
+
+# Enum for process state representation
+class ProcessState(Enum):
+    RUNNING = "RUNNING"
+    SLEEPING = "SLEEPING"
+
+# ControlledThread class for suspend/resume control
+class ControlledThread:
+    def __init__(self, target, name):
+        self.target = target
+        self.name = name
+        self.pause_cond = threading.Condition(threading.Lock())
+        self.paused = False
+        self.thread = threading.Thread(target=self.run_with_pause, name=name)
+
+    def run_with_pause(self):
+        while True:
+            with self.pause_cond:
+                while self.paused:
+                    self.pause_cond.wait()
+                self.target()
+
+    def pause(self):
+        with self.pause_cond:
+            self.paused = True
+
+    def resume(self):
+        with self.pause_cond:
+            self.paused = False
+            self.pause_cond.notify()  # Signal one waiting thread
+
+    def start(self):
+        self.thread.start()
+
+    def join(self):
+        self.thread.join()
+
+# Main ProcessManager class
+class ProcessManager:
+    def __init__(self):
+        # Initializations
+        self.running_processes = {}  # Dictionary to store running processes
+        self.process_threads = {}    # Dictionary to store ControlledThreads within processes
+        self.threads = []            # List to store all threads
+        self.pipe_conn, self.child_conn = multiprocessing.Pipe()  # IPC pipe connections
+        self.shared_queue = Queue()  # IPC shared queue
+        self.mutex = threading.Semaphore(1)  # Semaphore for mutual exclusion
+        self.read_pipe, self.write_pipe = os.pipe()  # Pipes for IPC
+        self.buffer = []  # Buffer for producer-consumer problem
+        self.empty = threading.Semaphore(5)  # Semaphore indicating empty slots in buffer
+        self.filled = threading.Semaphore(0)  # Semaphore indicating filled slots in buffer
+        self.setup_logging()  # Initialize logging
+        # Set the read pipe to non-blocking
+        flags = fcntl.fcntl(self.read_pipe, fcntl.F_GETFL)
+        fcntl.fcntl(self.read_pipe, fcntl.F_SETFL, flags | os.O_NONBLOCK)
+
+    def setup_logging(self):
+        # Set up logging configurations
+        logging.basicConfig(filename='processes.log', level=logging.INFO, format='%(asctime)s - %(message)s')
+        self.process_log = logging.getLogger('processes')
+        self.process_log.setLevel(logging.INFO)
+
+    def create_thread(self, thread_name):
+        # Create a new thread within the current process using ControlledThread
+        def thread_func():
+            # The main function executed by the thread
+            self.process_log.info(f"Thread '{thread_name}' running")
+
+        controlled_thread = ControlledThread(target=thread_func, name=thread_name)
+        self.threads.append(controlled_thread)
+        process_pid = os.getpid()
+        self.process_threads.setdefault(process_pid, []).append(controlled_thread)
+        self.process_log.info(f"Thread '{thread_name}' created successfully")
+        controlled_thread.start()
+
+    # Suspension and resumption methods for processes
+    def suspend_process(self, pid):
+        try:
+            os.kill(pid, signal.SIGSTOP)
+            print(f"Process {pid} suspended.")
+        except Exception as e:
+            print(f"Failed to suspend process {pid}. Error: {e}")
+
+    def resume_process(self, pid):
+        try:
+            os.kill(pid, signal.SIGCONT)
+            print(f"Process {pid} resumed.")
+        except Exception as e:
+            print(f"Failed to resume process {pid}. Error: {e}")
+
+    def create_process(self, process_name):
+        # Create a new child process
+        pid = os.fork()
+        if pid == 0:
+            # Child process code
+            self.state = ProcessState.RUNNING
+            self.parent_pid = os.getppid()
+            try:
+                os.execlp(process_name, process_name)
+            except Exception as e:
+                self.process_log.error(f"Child process '{process_name}' with PID {os.getpid()} encountered an error: {str(e)}")
+                self.state = ProcessState.SLEEPING
+            os._exit(1)
+        else:
+            with self.mutex:
+                # Store process information
+                self.running_processes[pid] = {"name": process_name, "state": ProcessState.RUNNING, "parent_id": os.getpid()}
+            self.process_log.info(f"Child process '{process_name}' with PID {pid} created.")
+
+    def list_processes(self):
+        # List all running processes
+        if not self.running_processes:
+            print("No running processes.")
+        else:
+            print("Running processes:")
+            print("{:10} {:20} {:10} {:10}".format("PID", "Name", "State", "Parent PID"))
+            for pid, process_info in self.running_processes.items():
+                print("{:10} {:20} {:10} {:10}".format(pid, process_info['name'], process_info['state'].value, process_info['parent_id']))
+
+    def terminate_process(self, pid):
+        # Terminate a specified process
+        if pid in self.running_processes:
+            try:
+                os.kill(pid, signal.SIGTERM)
+                del self.running_processes[pid]
+                print(f"Process with PID {pid} terminated.")
+            except Exception as e:
+                print(f"Failed to terminate the process with PID {pid}. Error: {e}")
+        else:
+            print(f"No process found with PID {pid}")
+
+    def send_message(self):
+        # Send a message to child processes through IPC
+        message = input("Enter the message to send to the child processes: ")
+        self.pipe_conn.send(message)
+
+    def receive_message(self, timeout=5):
+        # Receive message from child processes with a specified timeout
+        start_time = time.time()
+        while True:
+            if self.child_conn.poll(0.5):  # Check every half second
+                print(f"Received message from child: {self.child_conn.recv()}")
+                break
+            elif time.time() - start_time > timeout:
+                print("No message received within the timeout period.")
+                break
+
+    def send_data(self):
+        # Send data using a shared queue (IPC mechanism)
+        data = random.randint(1, 100)
+        self.shared_queue.put(data)
+        print(f"Sent data: {data}")
+
+    def receive_data(self):
+        # Receive data using a shared queue (IPC mechanism)
+        if not self.shared_queue.empty():
+            print(f"Received data: {self.shared_queue.get()}")
+        else:
+            print("No data available to receive.")
+
+    def producer_consumer_demo(self):
+        choice = int(input("\nProducer-Consumer Demo\n1. Produce\n2. Consume\nEnter your choice: "))
+        if choice == 1:
+            self.producer()
+        elif choice == 2:
+            self.consumer()
+        else:
+            print("Invalid choice.")
+
+    # Produce an item for the producer-consumer problem
+    def producer(self):
+        item = random.randint(1, 100)
+        self.empty.acquire()
+        self.buffer.append(item)
+        self.filled.release()
+        print(f"Produced item: {item}")
+        self.process_log.info(f"Produced item: {item}")
+
+    def consumer(self):
+        # Consume an item for the producer-consumer problem
+        self.filled.acquire()
+        item = self.buffer.pop(0)
+        self.empty.release()
+        print(f"Consumed item: {item}")
+        self.process_log.info(f"Consumed item: {item}")
+
+    def parallel_text_processing(self, file_path, num_processes=4):
+        start_time = time.time()  # Start time for performance measurement
+        initial_cpu = psutil.cpu_percent(interval=1)
+        initial_memory = psutil.virtual_memory().used / (1024 * 1024)  # Convert bytes to MB
+
+        # Get file size and calculate segment size
+        file_size = os.path.getsize(file_path)
+        segment_size = file_size // num_processes
+
+        # Creating a manager dictionary to count characters across processes
+        manager = multiprocessing.Manager()
+        shared_counter = manager.dict()
+
+        processes = []
+        for i in range(num_processes):
+            start = i * segment_size
+            end = None if i == num_processes - 1 else (i + 1) * segment_size
+            p = multiprocessing.Process(target=self.process_file_segment, args=(file_path, start, end, shared_counter))
+            processes.append(p)
+            p.start()
+
+        for p in processes:
+            p.join()
+
+        # Convert manager dict to standard dict for final result
+        final_counts = dict(shared_counter)
+        final_cpu = psutil.cpu_percent(interval=1)
+        final_memory = psutil.virtual_memory().used / (1024 * 1024)  # Convert bytes to MB
+
+        end_time = time.time()  # End time for performance measurement
+        print("Final character counts:")
+        for char, count in final_counts.items():
+            print(f"Character '{char}': {count}")
+        print(f"\nTotal unique characters counted: {len(final_counts)}")
+        print(f"Execution time: {end_time - start_time} seconds")
+        print("Resource Utilization Metrics:")
+        print(f"Initial CPU Usage: {initial_cpu}%")
+        print(f"Final CPU Usage: {final_cpu}%")
+        print(f"Initial Memory Usage: {initial_memory:.2f} MB")
+        print(f"Final Memory Usage: {final_memory:.2f} MB")
+        print(f"Memory Usage Change: {final_memory - initial_memory:.2f} MB")
+
+    def process_file_segment(self, file_path, start, end, shared_counter):
+        with open(file_path, 'r') as file:
+            file.seek(start)
+            if start != 0:
+                # Skip the partial line to ensure the process starts at the beginning of a line
+                file.readline()
+            while True:
+                current_position = file.tell()
+                if end is not None and current_position >= end:
+                    break
+                line = file.readline().upper()
+                if not line:  # End of file
+                    break
+                for char in line:
+                    if char.isalpha():  # Optionally filter characters
+                        # Direct update without locking, since Manager() ensures process-safe updates
+                        shared_counter[char] = shared_counter.get(char, 0) + 1
+
+    def display_main_menu(self):
+        print("\n+---------------------------------------------------+")
+        print("|                 Operating System Simulator        |")
+        print("|                                                   |")
+        print("|    Manage processes, threads and parallel tasks   |")
+        print("+---------------------------------------------------+")
+        print("\nChoose an option from the menu:")
+        print("1. Create a new process")
+        print("2. Suspend a process")
+        print("3. Resume a process")
+        print("4. View all processes")
+        print("5. Terminate a process")
+        print("6. Initiate a new thread")
+        print("7. IPC: Send message to child processes")
+        print("8. IPC: Fetch message from child process")
+        print("9. IPC: Queue - Send data")
+        print("10. IPC: Queue - Receive data")
+        print("11. Producer-Consumer Demo")
+        print("12. Parallel Text File Processing")
+        print("13. Exit")
+
+    def run(self):
+        while True:
+            self.display_main_menu()
+            choice = input("\nEnter your choice: ")
+            if choice == "1":
+                process_name = input("Enter the process name: ")
+                self.create_process(process_name)
+            elif choice in ["2", "3"]:
+                try:
+                    pid = int(input("Enter the PID of the process: "))
+                    if choice == "2":
+                        self.suspend_process(pid)
+                    else:
+                        self.resume_process(pid)
+                except ValueError:
+                    print("Invalid PID. Please enter a valid integer.")
+            elif choice == "4":
+                self.list_processes()
+            elif choice == "5":
+                try:
+                    pid = int(input("Enter the PID of the process to terminate: "))
+                    self.terminate_process(pid)
+                except ValueError:
+                    print("Invalid PID. Please enter a valid integer.")
+            elif choice == "6":
+                thread_name = input("Enter the thread name: ")
+                self.create_thread(thread_name)
+            elif choice == "7":
+                self.send_message()
+            elif choice == "8":
+                self.receive_message()
+            elif choice == "9":
+                self.send_data()
+            elif choice == "10":
+                self.receive_data()
+            elif choice == "11":
+                self.producer_consumer_demo()
+            elif choice == "12":
+                file_path = input("Enter the path to the text file: ")
+                num_processes = input("Enter the number of processes to use (default 4): ")
+                try:
+                    num_processes = int(num_processes) if num_processes.isdigit() else 4
+                    self.parallel_text_processing(file_path, num_processes)
+                except ValueError:
+                    print("Invalid number of processes. Please enter a valid integer.")
+            elif choice == "13":
+                print("Exiting Operating System Simulator...")
+                break
+            else:
+                print("Invalid option, please try again.")
+
+if __name__ == "__main__":
+    manager = ProcessManager()
+    manager.run()
