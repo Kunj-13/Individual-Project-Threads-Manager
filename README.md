@@ -175,44 +175,94 @@ def parallel_text_processing(self, file_path, num_processes):
 ### Test Description:
 This test will assess the IPC capabilities of the Process Manager to send and receive messages and data between processes.
 
-
-7. **Create a new process**
+## 7. **IPC: Send Message to child processes**
 ### Test Procedure:
-8. **Create a new process**
+- To send message to child processes, select "7. IPC: Send message to child processes" from the main menu by simply typing "7" and hitting enter.
+- Then, you will get the prompt to enter the message you want to send to child processes.
+
+## Short Message
+![image](https://github.com/Kunj-13/Multi-Process-Threads-Manager-with-IPC-and-Parallel-Text-File-Processing/assets/143433713/fdcbfe62-bb58-4e4f-ab91-ad85a3471cab)
+
+## Long Message
+![image](https://github.com/Kunj-13/Multi-Process-Threads-Manager-with-IPC-and-Parallel-Text-File-Processing/assets/143433713/e1c2ed24-f1af-421c-8f33-330ccf8e502d)
+
+-**Expected Result**: A message is sent to child processes.
+-**Backend Operation**: The **send_message** function writes a message to an IPC pipe, which can be read by a child process on the other end of the pipe.
+
+## **Performance Evaluation** 
+### Short Message Performance:
+
+- **Message**: "hi its kunj patel and i'm just testing to see how different the performance is between short messages and really long."
+- **Time Taken**: 30.07318353652954 seconds
+- **CPU Usage Change**: 37.6%
+- **Memory Usage Change**: 1.0%
+  
+### Long Message Performance:
+
+- **Message**: "Hi this is Kunj again and now I just want to test if I sent very long message does it change the performance. i am vry curious . so during the break i watchedthe movie dune which was very amazing and i want to know what did you do during the break?"
+- **Time Taken**: 80.29867553710938 seconds
+-** CPU Usage Change**: Approximately 8.8%
+-** Memory Usage Change**: 15.5%
+
+### Analysis:
+From the data, I observed a significant increase in both the time taken and memory usage when processing the long message compared to the short message. The long message resulted in nearly double the processing time and a more substantial increase in memory usage. This could indicate that the system's performance scales with the size of the message, which is typical behavior as larger data sizes require more processing power and memory to handle. However, the CPU usage change seems to be less with the long message. This might be due to the nature of the processing taking place, where CPU usage may not scale linearly with message size or due to other concurrent processes affecting CPU usage during the test.
+
+
+## 8. **IPC: Fetch Message from child processes**
 ### Test Procedure:
-9. **Create a new process**
+- To fetch message from child processes, select "8. IPC: Fetch message from child processes" from the main menu by simply typing "8" and hitting enter.
+
+![image](https://github.com/Kunj-13/Multi-Process-Threads-Manager-with-IPC-and-Parallel-Text-File-Processing/assets/143433713/fa80700f-756e-4916-9f2b-6bcf5ff51052)
+
+- **Expected Result**: A latest message is received from a child process.
+
+- **Backend Operation**: The **receive_message** function polls the IPC pipe for messages from child processes, printing any messages that are received.
+
+## 9. **IPC: Queue - Send data**
 ### Test Procedure:
+- To send data using the queue system, select "9. IPC: Queue - Send data" from the main menu by simply typing "9" and hitting enter. 
+![image](https://github.com/Kunj-13/Multi-Process-Threads-Manager-with-IPC-and-Parallel-Text-File-Processing/assets/143433713/44f1bc4f-653e-4765-b6a2-40d8314111d7)
+
+- **Expected Result**: Data is placed in a queue for IPC.
+- **Backend Operation**: The **send_data** function uses a multiprocessing queue to send a piece of data, which is randomly generated within the function.
+  
+## 10. **IPC: Queue - Receive data**
+### Test Procedure:
+- To fetch message from child processes, select "10. IPC: Queue - Receive data" from the main menu by simply typing "10" and hitting enter
+![image](https://github.com/Kunj-13/Multi-Process-Threads-Manager-with-IPC-and-Parallel-Text-File-Processing/assets/143433713/a98c5a30-0309-43a8-9083-a1fcda9a6fac)
+
+- **Expected Result**: Data is received from the IPC queue.
+- **Backend Operation**: The **receive_data** function checks a multiprocessing queue for any data sent by other processes and retrieves it.
+
+### Evaluation Performance:-
+- The CPU usage for sending data is slightly lower than for receiving data. This indicates that the operation of putting data into the queue is less intensive than taking data out, which may involve additional overhead for synchronization and possibly waking up sleeping processes.
+- Memory usage for sending data showed a small increase, while receiving data showed no change. This might be due to memory allocation when sending data and simply reading the data when receiving, without allocating new memory.
+- The differences in CPU usage are relatively close, suggesting that the queue operations have been optimized for similar performance characteristics, regardless of whether data is being sent or received.
+
+## Parallel Text File Processing
+### Test Description:
+The test checks the Process Manager's ability to efficiently perform parallel text file processing between big file vs short file.
+
+## 11. **Parallel Text File Processing**
+### Test Procedure:
+- First of all, import the text file you want to process into your main project.
+- To process the content of a text file, select "11. Parallel Text File Processing" from the main menu by simply typing "7" and hitting enter.
+- Then, you will get the prompt to enter the file path. After entering the valid file path, the results will be displayed. 
+
+## Small Text File
+<img width="441" alt="Screenshot 2024-03-09 at 1 53 23 AM" src="https://github.com/Kunj-13/Multi-Process-Threads-Manager-with-IPC-and-Parallel-Text-File-Processing/assets/143433713/ad732391-e95b-4c4a-9803-bca3bac6c6fb">
+<img width="441" alt="Screenshot 2024-03-09 at 1 52 51 AM" src="https://github.com/Kunj-13/Multi-Process-Threads-Manager-with-IPC-and-Parallel-Text-File-Processing/assets/143433713/d5c03698-fe14-4ebc-9792-fd3504bf67c5">
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-3. 
+## Large Text File
 <img width="441" alt="Screenshot 2024-03-09 at 1 48 37 AM" src="https://github.com/Kunj-13/Multi-Process-Threads-Manager-with-IPC-and-Parallel-Text-File-Processing/assets/143433713/a65b796f-a804-4e07-a423-7782c4ed5e39">
 <img width="441" alt="Screenshot 2024-03-09 at 1 49 18 AM" src="https://github.com/Kunj-13/Multi-Process-Threads-Manager-with-IPC-and-Parallel-Text-File-Processing/assets/143433713/d738e75a-5c35-4680-a09b-1e8a3450c011">
 
-<img width="441" alt="Screenshot 2024-03-09 at 1 53 23 AM" src="https://github.com/Kunj-13/Multi-Process-Threads-Manager-with-IPC-and-Parallel-Text-File-Processing/assets/143433713/ad732391-e95b-4c4a-9803-bca3bac6c6fb">
-<img width="441" alt="Screenshot 2024-03-09 at 1 52 51 AM" src="https://github.com/Kunj-13/Multi-Process-Threads-Manager-with-IPC-and-Parallel-Text-File-Processing/assets/143433713/d5c03698-fe14-4ebc-9792-fd3504bf67c5">
+
+- **Expected Result**: The text file is processed in parallel, characters are converted to uppercase, and a count of each character is provided. The system should display performance metrics, such as execution time and CPU/memory usage.
+- **Backend Operation**: The **parallel_text_processing** function divides a file into segments and uses multiple processes to process each segment, with each process counting character occurrences using a shared manager dictionary.
+
+
+
+
 
