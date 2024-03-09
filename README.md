@@ -265,7 +265,31 @@ The test checks the Process Manager's ability to efficiently perform parallel te
 - **Expected Result**: The text file is processed in parallel, characters are converted to uppercase, and a count of each character is provided. The system should display performance metrics, such as execution time and CPU/memory usage.
 - **Backend Operation**: The **parallel_text_processing** function divides a file into segments and uses multiple processes to process each segment, with each process counting character occurrences using a shared manager dictionary.
 
+## Evaluation Performance
+### **Performance for Small Text File (small text smp.txt):**
+- **Execution Time:** 2.1806066036224365 seconds
+- **Initial CPU Usage:** 48.1%
+- **Final CPU Usage:** 44.8%
+- **Initial Memory Usage:** 17278.93 MB
+- **Final Memory Usage:** 17284.30 MB
+- **Memory Usage Change:** 5.37 MB
 
+### **Performance for Large Text File (dune 3 test.txt):**
+- **Execution Time:** 7.263701677322388 seconds
+- **Initial CPU Usage:** 38.3%
+- **Final CPU Usage:** 53.2%
+- **Initial Memory Usage:** 16971.70 MB
+- **Final Memory Usage:** 16979.49 MB
+- **Memory Usage Change:** 7.79 MB
 
+### **Analysis:**
+- The execution time for processing the larger file is significantly higher, as expected due to the increased amount of data.
+- CPU usage increased when processing the larger file, indicating more intensive computation required for larger datasets.
+- Memory usage also saw a greater increase with the larger file, which is consistent with the need for additional memory to manage more data.
+- The system shows good scalability, with the increase in execution time and resource usage being reasonable given the likely larger size of the "dune 3 test.txt" file compared to "small text smp.txt".
 
+## 12. **Exit**
+### Test Procedure:
+- To exit, select "12. Exit" from the main menu by simply typing "12" and hitting enter.
+- Then, you will exit from the program. 
 
