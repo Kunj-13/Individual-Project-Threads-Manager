@@ -298,4 +298,23 @@ The test checks the Process Manager's ability to efficiently perform parallel te
 - **Expected Result:** The program exits.
 - **Backend Operation**: The loop running the main menu is terminated, ending the program execution.
 
+
+# Limitations, Challenges & Findings
+
+## Findings
+Throughout the course of developing this operating system simulator, I gained valuable insights into the complexity of managing processes and threads, the intricacies of inter-process communication, and the benefits as well as challenges of parallel computing. One of my key findings was the substantial impact of parallel processing on performance. By splitting a large text file into segments and processing each segment concurrently, the execution time was significantly reduced compared to sequential processing. However, this came with the increased complexity of managing multiple processes, ensuring data consistency, and dealing with the overhead of context switching.
+
+## Challenges
+During implementation, I faced several challenges:
+- **Synchronizing Threads:** Implementing thread synchronization without causing deadlocks or race conditions was intricate. I had to carefully manage shared resources using locks and semaphores to maintain data integrity.
+- **IPC Mechanisms:** Balancing the performance of message passing with shared memory was complex, especially when trying to optimize for different sizes of data. It was crucial to find a sweet spot where the system would not be bogged down by overhead or by the latency of data transfer.
+- **Memory Management:** Keeping track of memory usage was crucial, particularly when handling large files. It was challenging to ensure that the memory was allocated and freed appropriately to prevent leaks.
+
+## Limitations
+Some limitations and areas for improvement include:
+- **User Interface:** While functional, the CLI-based interface could be more intuitive. Incorporating a graphical user interface would make it easier for users to interact with the simulator and understand the processes and threads in real time.
+- **Scalability:** While the simulator handles parallel processing well, further scalability tests are needed with larger datasets and more complex processing tasks to ensure that the system scales linearly.
+- **Performance Profiling:** More detailed profiling could help identify bottlenecks in the system. This data would be invaluable for optimizing various components, especially the IPC mechanisms.
+- **Extended Functionality:** Currently, the simulator operates on text files for parallel processing. Expanding this to other types of data and operations could broaden the learning experience.
   
+This project not only solidified my understanding of operating systems but also improved my problem-solving and system design skills. The challenges I faced pushed me to explore and learn more about the underlying mechanics of an operating system. Moving forward, I plan to refine this project, making it more robust and user-friendly, and possibly extending its functionality to simulate more complex operating system tasks.
