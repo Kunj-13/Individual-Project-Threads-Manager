@@ -291,5 +291,11 @@ The test checks the Process Manager's ability to efficiently perform parallel te
 ## 12. **Exit**
 ### Test Procedure:
 - To exit, select "12. Exit" from the main menu by simply typing "12" and hitting enter.
-- Then, you will exit from the program. 
+- Then, you will exit from the program.
 
+![image](https://github.com/Kunj-13/Multi-Process-Threads-Manager-with-IPC-and-Parallel-Text-File-Processing/assets/143433713/84eaf3b8-5db4-4fdc-9110-01a31f615fb4)
+
+- **Expected Result:** The program exits.
+- **Backend Operation**: The loop running the main menu is terminated, ending the program execution.
+
+  
