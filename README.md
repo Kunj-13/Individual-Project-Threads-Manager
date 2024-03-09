@@ -9,6 +9,20 @@ For this project, I developed a comprehensive operating system simulation projec
   
 - **Parallel Text File Processing**: A significant part of the project is devoted to the parallel processing of text files. This system efficiently handles character transformation and frequency counting tasks by leveraging multiple threads or processes. The design focuses on minimizing execution time while maximizing resource utilization.
 
+# Installation requirements and directions
+
+1. You need Python 3.6 or later installed on your device if you dont have one download from this link:- https://www.python.org/downloads/.
+
+2. Use the command below to clone from a repository:
+
+```git clone https://github.com/Kunj-13/Multi-Process-Threads-Manager-with-IPC-and-Parallel-Text-File-Processing.git```
+
+3. Navigate to the Project Directory:
+```cd Multi-Process-Threads-Manager-with-IPC-and-Parallel-Text-File-Processing```
+
+4. Run my Simulator:
+```python3 main.py```
+
 # Code structure 
 - I will demonstrate and illustrate some key code structures for each main function below. They are snippits of code since it would be difficult to explain the whole code in the report.
   
