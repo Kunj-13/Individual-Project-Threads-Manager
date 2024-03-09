@@ -211,6 +211,7 @@ From the data, I observed a significant increase in both the time taken and memo
 ## 8. **IPC: Fetch Message from child processes**
 ### Test Procedure:
 - To fetch message from child processes, select "8. IPC: Fetch message from child processes" from the main menu by simply typing "8" and hitting enter.
+  
 
 ![image](https://github.com/Kunj-13/Multi-Process-Threads-Manager-with-IPC-and-Parallel-Text-File-Processing/assets/143433713/fa80700f-756e-4916-9f2b-6bcf5ff51052)
 
@@ -220,7 +221,8 @@ From the data, I observed a significant increase in both the time taken and memo
 
 ## 9. **IPC: Queue - Send data**
 ### Test Procedure:
-- To send data using the queue system, select "9. IPC: Queue - Send data" from the main menu by simply typing "9" and hitting enter. 
+- To send data using the queue system, select "9. IPC: Queue - Send data" from the main menu by simply typing "9" and hitting enter.
+  
 ![image](https://github.com/Kunj-13/Multi-Process-Threads-Manager-with-IPC-and-Parallel-Text-File-Processing/assets/143433713/44f1bc4f-653e-4765-b6a2-40d8314111d7)
 
 - **Expected Result**: Data is placed in a queue for IPC.
@@ -229,6 +231,7 @@ From the data, I observed a significant increase in both the time taken and memo
 ## 10. **IPC: Queue - Receive data**
 ### Test Procedure:
 - To fetch message from child processes, select "10. IPC: Queue - Receive data" from the main menu by simply typing "10" and hitting enter
+  
 ![image](https://github.com/Kunj-13/Multi-Process-Threads-Manager-with-IPC-and-Parallel-Text-File-Processing/assets/143433713/a98c5a30-0309-43a8-9083-a1fcda9a6fac)
 
 - **Expected Result**: Data is received from the IPC queue.
