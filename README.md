@@ -199,6 +199,7 @@ This test will assess the IPC capabilities of the Process Manager to send and re
 ![image](https://github.com/Kunj-13/Multi-Process-Threads-Manager-with-IPC-and-Parallel-Text-File-Processing/assets/143433713/e1c2ed24-f1af-421c-8f33-330ccf8e502d)
 
 -**Expected Result**: A message is sent to child processes.
+
 -**Backend Operation**: The **send_message** function writes a message to an IPC pipe, which can be read by a child process on the other end of the pipe.
 
 ## **Performance Evaluation** 
@@ -262,7 +263,7 @@ The test checks the Process Manager's ability to efficiently perform parallel te
 ## 11. **Parallel Text File Processing**
 ### Test Procedure:
 - First of all, import the text file you want to process into your main project.
-- To process the content of a text file, select "11. Parallel Text File Processing" from the main menu by simply typing "7" and hitting enter.
+- To process the content of a text file, select "11. Parallel Text File Processing" from the main menu by simply typing "11" and hitting enter.
 - Then, you will get the prompt to enter the file path. After entering the valid file path, the results will be displayed. 
 
 ## Small Text File
