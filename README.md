@@ -15,10 +15,10 @@ For this project, I developed a comprehensive operating system simulation projec
 
 2. Use the command below to clone from a repository:
 
-```git clone https://github.com/Kunj-13/Multi-Process-Threads-Manager-with-IPC-and-Parallel-Text-File-Processing.git```
+```git clone https://github.com/Kunj-13/Individual-Project-Threads-Manager.git```
 
 3. Navigate to the Project Directory:
-```cd Multi-Process-Threads-Manager-with-IPC-and-Parallel-Text-File-Processing```
+```cd Individual-Project-Threads-Manager.git```
 
 4. Run my Simulator:
 ```python3 main.py```
