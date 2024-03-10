@@ -151,10 +151,8 @@ def parallel_text_processing(self, file_path, num_processes):
 ## 4. **View all processes**
 ### Test Procedure: 
 - To view all processes, select "4. View all processes" from the main menu by simply typing "4" and hitting enter.
-
-<img width="443" alt="Screenshot 2024-03-09 at 2 05 11 AM" src="https://github.com/Kunj-13/Multi-Process-Threads-Manager-with-IPC-and-Parallel-Text-File-Processing/assets/143433713/96bc5867-99af-4d2c-90f1-32ab138fabfb">
-
-<img width="454" alt="Screenshot 2024-03-09 at 2 05 32 AM" src="https://github.com/Kunj-13/Multi-Process-Threads-Manager-with-IPC-and-Parallel-Text-File-Processing/assets/143433713/71cde65b-e525-47bc-9bb0-0bab3960c763">
+  
+<img width="470" alt="Screenshot 2024-03-09 at 2 03 09 AM" src="https://github.com/Kunj-13/Multi-Process-Threads-Manager-with-IPC-and-Parallel-Text-File-Processing/assets/143433713/90978a5c-4456-4441-98d4-4fe8194598ae">
 
 - Expected Result: A list of all processes and their states is displayed.
 - Backend Operation: The **list_processes** function iterates through the **running_processes** dictionary, printing out details for each tracked process.
